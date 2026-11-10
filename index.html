@@ -59,7 +59,7 @@
             <div class="text-xs text-[#6f6a61] mt-1">Migration (.sql), Kayıt/Ödeme Formu (.tsx) veya E-posta dosyalarını seçin.</div>
           </label>
         </div>
-        <div id="selected-files-summary" class="hidden flex items-center justify-between bg-[#f3efe6] px-3.5 py-2.5 rounded-lg text-xs">
+        <div id="selected-files-summary" class="hidden kvkk-summary-bar bg-[#f3efe6] px-3.5 py-2.5 rounded-lg text-xs">
           <span id="selected-files-text" class="font-mono">0 dosya yüklendi</span>
           <button type="button" onclick="runProjectAudit()" class="kvkk-btn kvkk-btn-primary text-xs">⚖️ KVKK &amp; GDPR Uyum Denetimini Başlat</button>
         </div>
@@ -118,7 +118,7 @@
       <div class="kvkk-card p-4 sm:p-5 space-y-4"><div class="flex flex-wrap items-center justify-between gap-2"><h2 class="text-sm font-semibold">🔍 Detaylı Teknik Bulgular ve Kod Yamaları</h2><div class="flex flex-wrap gap-1.5"><button type="button" onclick="filterFindings('ALL')" class="kvkk-chip active">Tümü</button><button type="button" onclick="filterFindings('CRITICAL')" class="kvkk-chip">Kritik</button><button type="button" onclick="filterFindings('HIGH')" class="kvkk-chip">Yüksek</button><button type="button" onclick="filterFindings('MEDIUM')" class="kvkk-chip">Orta</button></div></div><div id="findings-list-container" class="space-y-3"></div></div>
     </section>
   </div>
-  <div id="ai-config-modal" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4">
+  <div id="ai-config-modal" class="kvkk-modal-backdrop hidden" onclick="if(event.target===this)closeAIConfigModal()">
     <div class="kvkk-card max-w-lg w-full p-5 space-y-4 bg-white shadow-2xl">
       <div class="flex items-center justify-between border-b border-[#e6e2d8] pb-3"><h3 class="text-base font-bold">🤖 LLM &amp; AI Analiz Yapılandırması (LocalStorage)</h3><button type="button" onclick="closeAIConfigModal()" class="text-lg font-bold">&times;</button></div>
       <div class="space-y-3 text-xs">
