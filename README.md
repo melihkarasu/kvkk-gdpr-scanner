@@ -1,4 +1,4 @@
-# ⚖️ VibeCoding KVKK & GDPR Scanner
+# ⚖️ KVKK & GDPR Scanner
 
 **6698 Sayılı KVKK (2024/2026 Reformları), AB GDPR (EU 2016/679), 6563 Sayılı ETK (İYS), 6502 Sayılı TKHK (Mesafeli Sözleşmeler) ve 5651 Sayılı Kanun Uyumlu Kaynak Kod, GitHub Repo ve Canlı Web Sitesi Denetçisi**
 

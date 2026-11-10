@@ -1,5 +1,5 @@
 /**
- * VibeCoding KVKK & GDPR Scanner
+ * KVKK & GDPR Scanner
  * 6698 Sayılı KVKK (2024/2026 Reformları), AB GDPR (EU 2016/679), 6563 ETK (İYS),
  * 6502 TKHK (Mesafeli Sözleşmeler) ve 5651 Sayılı Kanun Uyum Denetçisi
  * - Statik Kod Analizi (SAST) + Proje Yapısı & Canlı URL Denetim Motoru
@@ -733,7 +733,7 @@ async function scanLiveWebsite() {
 
   try {
     const basePath = window.location.pathname.replace(/\/+$/, '');
-    const apiEndpoint = basePath.includes('vibecoding-kvkk-gdpr-scanner') ? basePath + '/api/scan-url' : '/api/scan-url';
+    const apiEndpoint = basePath.includes('kvkk-gdpr-scanner') ? basePath + '/api/scan-url' : '/api/scan-url';
 
     const res = await fetch(apiEndpoint, {
       method: 'POST',
@@ -906,7 +906,7 @@ async function callLLMWithConfig(systemPrompt, userPrompt) {
 
   const finalUserPrompt = cfg.redact_pii !== false ? maskPIIAndSecrets(userPrompt) : userPrompt;
   const basePath = window.location.pathname.replace(/\/+$/, '');
-  const apiEndpoint = basePath.includes('vibecoding-kvkk-gdpr-scanner') ? basePath + '/api/ai-analyze' : '/api/ai-analyze';
+  const apiEndpoint = basePath.includes('kvkk-gdpr-scanner') ? basePath + '/api/ai-analyze' : '/api/ai-analyze';
 
   const res = await fetch(apiEndpoint, {
     method: 'POST',
