@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeCoding KVKK & GDPR Scanner — Hukuki Kod ve Uyum Denetçisi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-[#FAF8F5] text-[#181614] min-h-screen antialiased">
+  <div class="max-w-6xl mx-auto py-6 px-4 space-y-6">
+    <header class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#e6e2d8] pb-5">
+      <div class="flex items-start sm:items-center gap-3.5">
+        <div class="kvkk-brand-icon" aria-hidden="true">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-serif font-medium tracking-tight">VibeCoding KVKK &amp; GDPR Scanner</h1>
+            <span class="kvkk-pill kvkk-pill-accent">2026 Ceza Matrisi</span>
+            <span class="kvkk-pill">SAST &amp; Canlı Web Denetimi</span>
+          </div>
+          <p class="text-xs text-[#6f6a61] mt-0.5">6698 KVKK · AB GDPR · 6563 ETK (İYS) · 6502 TKHK · 5651 Loglama — Kaynak Kod, GitHub Repo ve Canlı Web Sitesi Hukuki Uyum Denetçisi</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="loadSampleVulnerableProject()" class="kvkk-btn kvkk-btn-ghost text-xs">🧪 Örnek İhlalli Proje Yükle</button>
+        <button type="button" onclick="openAIConfigModal()" class="kvkk-btn kvkk-btn-outline text-xs flex items-center gap-1.5" id="ai-status-btn">
+          <span id="ai-status-dot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span id="ai-status-label">AI Ayarları (LocalStorage)</span>
+        </button>
+        <a href="https://github.com/melihkarasu/vibecoding-kvkk-gdpr" target="_blank" rel="noopener noreferrer" class="kvkk-btn kvkk-btn-ghost text-xs">📚 Kural Seti (Skill)</a>
+      </div>
+    </header>
+    <section class="kvkk-card p-4 sm:p-5 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#e6e2d8] pb-3">
+        <div class="flex flex-wrap gap-1.5" role="tablist">
+          <button type="button" onclick="switchScanTab('folder')" id="tab-btn-folder" class="kvkk-tab active">📂 Proje Klasörü / Dosya Seç</button>
+          <button type="button" onclick="switchScanTab('github')" id="tab-btn-github" class="kvkk-tab">🐙 GitHub Repo Tarayıcı</button>
+          <button type="button" onclick="switchScanTab('code')" id="tab-btn-code" class="kvkk-tab">💻 Kod / SQL / Form Yapıştır</button>
+          <button type="button" onclick="switchScanTab('url')" id="tab-btn-url" class="kvkk-tab">🌐 Canlı Web Sitesi (URL) Denetimi</button>
+        </div>
+        <div class="text-[11px] font-mono text-[#6f6a61]">🔒 PII Maskeleme Aktif · LocalStorage AI</div>
+      </div>
+      <div id="scan-panel-folder" class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="cursor-pointer flex flex-col items-center justify-center p-5 rounded-xl border border-dashed border-[#d8d3c8] hover:border-[#FA520F] transition-colors text-center">
+            <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden" onchange="handleFolderSelect(event)">
+            <div class="text-2xl mb-1">📁</div>
+            <div class="text-sm font-semibold">Proje Klasörünü Seçin (%100 Tarayıcı İçi Analiz)</div>
+            <div class="text-xs text-[#6f6a61] mt-1">.sql, .ts, .tsx, .js, .py, .php, .html, .env ve docs/ dosyalarını tarar.</div>
+          </label>
+          <label class="cursor-pointer flex flex-col items-center justify-center p-5 rounded-xl border border-dashed border-[#d8d3c8] hover:border-[#FA520F] transition-colors text-center">
+            <input type="file" id="files-input" multiple class="hidden" onchange="handleFilesSelect(event)">
+            <div class="text-2xl mb-1">📄</div>
+            <div class="text-sm font-semibold">Tekil Dosyalar Seçin</div>
+            <div class="text-xs text-[#6f6a61] mt-1">Migration (.sql), Kayıt/Ödeme Formu (.tsx) veya E-posta dosyalarını seçin.</div>
+          </label>
+        </div>
+        <div id="selected-files-summary" class="hidden flex items-center justify-between bg-[#f3efe6] px-3.5 py-2.5 rounded-lg text-xs">
+          <span id="selected-files-text" class="font-mono">0 dosya yüklendi</span>
+          <button type="button" onclick="runProjectAudit()" class="kvkk-btn kvkk-btn-primary text-xs">⚖️ KVKK &amp; GDPR Uyum Denetimini Başlat</button>
+        </div>
+      </div>
+      <div id="scan-panel-github" class="hidden space-y-3">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input type="text" id="github-repo-input" placeholder="https://github.com/kullanici/proje-adi" class="flex-1 px-3.5 py-2.5 text-sm font-mono rounded-lg border border-[#d8d3c8] bg-white">
+          <input type="password" id="github-token-input" placeholder="Opsiyonel GitHub Token" class="sm:w-64 px-3.5 py-2.5 text-xs font-mono rounded-lg border border-[#d8d3c8] bg-white">
+          <button type="button" onclick="scanGithubRepository()" id="btn-scan-github" class="kvkk-btn kvkk-btn-primary whitespace-nowrap">🐙 Repoyu Analiz Et</button>
+        </div>
+      </div>
+      <div id="scan-panel-code" class="hidden space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <input type="text" id="code-filename-input" value="src/app/register/page.tsx" class="px-2.5 py-1 text-xs font-mono rounded border border-[#d8d3c8] bg-white">
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="loadSampleSnippet('rls')" class="kvkk-chip">Örnek: RLS Kapalı &amp; Service Key</button>
+            <button type="button" onclick="loadSampleSnippet('form')" class="kvkk-chip">Örnek: Hatalı Rıza Formu</button>
+            <button type="button" onclick="loadSampleSnippet('email')" class="kvkk-chip">Örnek: İYS &amp; Çıkış Eksik Mail</button>
+            <button type="button" onclick="loadSampleSnippet('fonts_llm')" class="kvkk-chip">Örnek: Google Fonts &amp; LLM PII</button>
+          </div>
+        </div>
+        <textarea id="code-paste-input" rows="10" class="w-full p-3.5 text-xs font-mono rounded-lg border border-[#d8d3c8] bg-white"></textarea>
+        <div class="flex justify-end"><button type="button" onclick="scanPastedCode()" class="kvkk-btn kvkk-btn-primary">🔍 Kodu Denetle</button></div>
+      </div>
+      <div id="scan-panel-url" class="hidden space-y-3">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input type="text" id="live-url-input" placeholder="https://ornek-uygulama.com" class="flex-1 px-3.5 py-2.5 text-sm font-mono rounded-lg border border-[#d8d3c8] bg-white">
+          <button type="button" onclick="scanLiveWebsite()" id="btn-scan-url" class="kvkk-btn kvkk-btn-primary whitespace-nowrap">🌐 Canlı Siteyi Denetle</button>
+        </div>
+      </div>
+    </section>
+    <section id="audit-summary-section" class="hidden space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3.5">
+        <div class="kvkk-card p-4 flex items-center gap-4">
+          <div id="compliance-grade-badge" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold font-mono">A</div>
+          <div><div class="text-[11px] uppercase font-mono text-[#6f6a61]">Uyum Skoru</div><div class="text-2xl font-bold font-mono" id="compliance-score-val">100 / 100</div><div class="text-xs text-[#6f6a61]" id="compliance-verdict-text"></div></div>
+        </div>
+        <div class="kvkk-card p-4 space-y-1.5">
+          <div class="text-[11px] uppercase font-mono text-[#6f6a61]">Tespit Edilen İhlaller</div>
+          <div class="flex items-baseline gap-2"><span class="text-2xl font-bold font-mono" id="total-findings-count">0</span><span class="text-xs text-[#6f6a61]" id="scanned-files-count">0 dosyada</span></div>
+          <div class="flex flex-wrap gap-1.5 text-[11px] font-mono pt-1"><span class="px-1.5 py-0.5 rounded bg-red-500/15 text-red-600" id="crit-count-badge">0 Kritik</span><span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600" id="high-count-badge">0 Yüksek</span><span class="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600" id="med-count-badge">0 Orta</span></div>
+        </div>
+        <div class="kvkk-card p-4 space-y-1"><div class="text-[11px] uppercase font-mono text-[#6f6a61]">2026 TR İdari Ceza Riski</div><div class="text-base sm:text-lg font-bold font-mono text-red-600" id="tr-penalty-exposure">0 TL</div><div class="text-[11px] text-[#6f6a61]">KVKK m.18 · 6563 ETK · 6502 TKHK</div></div>
+        <div class="kvkk-card p-4 flex flex-col justify-between gap-2"><div><div class="text-[11px] uppercase font-mono text-[#6f6a61]">AB GDPR &amp; AI Analiz</div><div class="text-xs font-semibold mt-0.5" id="gdpr-exposure-text"></div></div><button type="button" onclick="runAILegalAudit()" id="btn-run-ai-audit" class="kvkk-btn kvkk-btn-primary text-xs w-full justify-center">🤖 AI Hukukçu &amp; Kod Yaması Üret</button></div>
+      </div>
+      <div class="kvkk-card p-4 sm:p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2"><h2 class="text-sm font-semibold">📋 10 Maddelik KVKK &amp; GDPR Uyum Kontrol Matrisi</h2><div class="flex flex-wrap gap-1.5"><button type="button" onclick="exportComplianceMarkdown()" class="kvkk-btn kvkk-btn-ghost text-xs">📥 Markdown Rapor (.md)</button><button type="button" onclick="exportBreachPlanTemplate()" class="kvkk-btn kvkk-btn-ghost text-xs">🚨 docs/veri-ihlali.md Taslağı</button><button type="button" onclick="exportComplianceJSON()" class="kvkk-btn kvkk-btn-ghost text-xs">{ } JSON</button></div></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse text-xs"><thead><tr class="border-b border-[#e6e2d8] text-[#6f6a61] font-mono text-[11px]"><th class="py-2 pr-3">Denetim Alanı</th><th class="py-2 px-3">Mevzuat Dayanağı</th><th class="py-2 px-3">Durum</th><th class="py-2 px-3">2026 Ceza Karşılığı</th><th class="py-2 pl-3">Özet Bulgu</th></tr></thead><tbody id="domain-matrix-tbody" class="divide-y divide-[#e6e2d8]"></tbody></table></div>
+      </div>
+      <div id="ai-audit-panel" class="hidden kvkk-card p-5 space-y-4 border-2 border-[#FA520F]/40">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#e6e2d8] pb-3"><h3 class="text-sm font-bold">⚖️ AI Hukukçu &amp; Privacy-by-Design Mühendislik Raporu</h3><div class="flex items-center gap-1.5"><button type="button" onclick="generateAIDocument('aydinlatma')" class="kvkk-chip">📄 Aydınlatma Metni Üret</button><button type="button" onclick="generateAIDocument('ihlali')" class="kvkk-chip">🚨 72 Saat İhlal Planı Üret</button><button type="button" onclick="copyAIReport()" class="kvkk-btn kvkk-btn-ghost text-xs">📋 Kopyala</button></div></div>
+        <div id="ai-report-loading" class="hidden py-8 text-center text-xs font-mono">PII verileri maskeleniyor ve LLM hukuki/teknik uyum analizi hazırlanıyor...</div>
+        <div id="ai-report-output" class="text-xs leading-relaxed whitespace-pre-wrap bg-[#f3efe6]/60 p-4 rounded-xl border border-[#e6e2d8]"></div>
+        <div class="pt-2 border-t border-[#e6e2d8] flex gap-2"><input type="text" id="ai-followup-input" placeholder="AI KVKK & GDPR Danışmanına sorun..." class="flex-1 px-3 py-2 text-xs rounded-lg border border-[#d8d3c8] bg-white"><button type="button" onclick="sendAIFollowup()" class="kvkk-btn kvkk-btn-primary text-xs">Gönder</button></div>
+      </div>
+      <div class="kvkk-card p-4 sm:p-5 space-y-4"><div class="flex flex-wrap items-center justify-between gap-2"><h2 class="text-sm font-semibold">🔍 Detaylı Teknik Bulgular ve Kod Yamaları</h2><div class="flex flex-wrap gap-1.5"><button type="button" onclick="filterFindings('ALL')" class="kvkk-chip active">Tümü</button><button type="button" onclick="filterFindings('CRITICAL')" class="kvkk-chip">Kritik</button><button type="button" onclick="filterFindings('HIGH')" class="kvkk-chip">Yüksek</button><button type="button" onclick="filterFindings('MEDIUM')" class="kvkk-chip">Orta</button></div></div><div id="findings-list-container" class="space-y-3"></div></div>
+    </section>
+  </div>
+  <div id="ai-config-modal" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4">
+    <div class="kvkk-card max-w-lg w-full p-5 space-y-4 bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#e6e2d8] pb-3"><h3 class="text-base font-bold">🤖 LLM &amp; AI Analiz Yapılandırması (LocalStorage)</h3><button type="button" onclick="closeAIConfigModal()" class="text-lg font-bold">&times;</button></div>
+      <div class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">LLM Sağlayıcısı</label><select id="ai-provider" onchange="onAIProviderChange()" class="w-full px-3 py-2 rounded-lg border border-[#d8d3c8] bg-white"><option value="gemini">Google Gemini API</option><option value="openai">OpenAI API</option><option value="anthropic">Anthropic Claude API</option><option value="openrouter">OpenRouter API</option><option value="groq">Groq Cloud API</option><option value="custom">Özel OpenAI-Uyumlu</option></select></div><div><label class="block font-semibold mb-1">Model Adı</label><input type="text" id="ai-model" value="gemini-2.5-flash" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div></div>
+        <div><label class="block font-semibold mb-1">API Anahtarı (LocalStorage)</label><input type="password" id="ai-api-key" placeholder="AIza... / sk-..." class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div>
+        <div><label class="block font-semibold mb-1">Özel Base URL</label><input type="text" id="ai-base-url" placeholder="https://api.openai.com/v1" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div>
+        <label class="flex items-center gap-2"><input type="checkbox" id="ai-redact-pii" checked><span>LLM'e göndermeden önce TCKN, IBAN, E-posta, Telefon ve Sırları maskele</span></label>
+      </div>
+      <div class="flex items-center justify-between border-t border-[#e6e2d8] pt-3"><button type="button" onclick="clearAIConfig()" class="kvkk-btn kvkk-btn-ghost text-xs text-red-600">🗑️ Sıfırla</button><div class="flex gap-2"><button type="button" onclick="closeAIConfigModal()" class="kvkk-btn kvkk-btn-ghost text-xs">İptal</button><button type="button" onclick="saveAIConfig()" class="kvkk-btn kvkk-btn-primary text-xs">💾 Kaydet</button></div></div>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>
