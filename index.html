@@ -29,7 +29,7 @@
         <button type="button" onclick="loadSampleVulnerableProject()" class="kvkk-btn kvkk-btn-ghost text-xs">🧪 Örnek İhlalli Proje Yükle</button>
         <button type="button" onclick="openAIConfigModal()" class="kvkk-btn kvkk-btn-outline text-xs flex items-center gap-1.5" id="ai-status-btn">
           <span id="ai-status-dot" class="w-2 h-2 rounded-full bg-amber-500"></span>
-          <span id="ai-status-label">AI Ayarları (LocalStorage)</span>
+          <span id="ai-status-label">AI Ayarları</span>
         </button>
         <a href="https://github.com/melihkarasu/vibecoding-kvkk-gdpr" target="_blank" rel="noopener noreferrer" class="kvkk-btn kvkk-btn-ghost text-xs">📚 Kural Seti (Skill)</a>
       </div>
@@ -42,7 +42,7 @@
           <button type="button" onclick="switchScanTab('code')" id="tab-btn-code" class="kvkk-tab">💻 Kod / SQL / Form Yapıştır</button>
           <button type="button" onclick="switchScanTab('url')" id="tab-btn-url" class="kvkk-tab">🌐 Canlı Web Sitesi (URL) Denetimi</button>
         </div>
-        <div class="text-[11px] font-mono text-[#6f6a61]">🔒 PII Maskeleme Aktif · LocalStorage AI</div>
+        <div class="text-[11px] font-mono text-[#6f6a61]">🔒 PII Maskeleme Aktif · Sıfır Veri Saklama</div>
       </div>
       <div id="scan-panel-folder" class="space-y-3">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -119,15 +119,73 @@
     </section>
   </div>
   <div id="ai-config-modal" class="kvkk-modal-backdrop hidden" onclick="if(event.target===this)closeAIConfigModal()">
-    <div class="kvkk-card max-w-lg w-full p-5 space-y-4 bg-white shadow-2xl">
-      <div class="flex items-center justify-between border-b border-[#e6e2d8] pb-3"><h3 class="text-base font-bold">🤖 LLM &amp; AI Analiz Yapılandırması (LocalStorage)</h3><button type="button" onclick="closeAIConfigModal()" class="text-lg font-bold">&times;</button></div>
+    <div class="kvkk-card max-w-xl w-full p-5 space-y-4 bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#e6e2d8] pb-3">
+        <div>
+          <h3 class="text-base font-bold">🤖 AI &amp; LLM Analiz Ayarları</h3>
+          <p class="text-[11px] text-[#6f6a61]">Google Gemini API, Google Cloud Vertex AI (bölge: global), OpenAI veya Claude yapılandırması. Kimlik bilgileriniz sunucuya kaydedilmez; yalnızca kendi tarayıcınızda tutulur.</p>
+        </div>
+        <button type="button" onclick="closeAIConfigModal()" class="text-lg font-bold">&times;</button>
+      </div>
       <div class="space-y-3 text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block font-semibold mb-1">LLM Sağlayıcısı</label><select id="ai-provider" onchange="onAIProviderChange()" class="w-full px-3 py-2 rounded-lg border border-[#d8d3c8] bg-white"><option value="gemini">Google Gemini API</option><option value="openai">OpenAI API</option><option value="anthropic">Anthropic Claude API</option><option value="openrouter">OpenRouter API</option><option value="groq">Groq Cloud API</option><option value="custom">Özel OpenAI-Uyumlu</option></select></div><div><label class="block font-semibold mb-1">Model Adı</label><input type="text" id="ai-model" value="gemini-2.5-flash" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div></div>
-        <div><label class="block font-semibold mb-1">API Anahtarı (LocalStorage)</label><input type="password" id="ai-api-key" placeholder="AIza... / sk-..." class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div>
-        <div><label class="block font-semibold mb-1">Özel Base URL</label><input type="text" id="ai-base-url" placeholder="https://api.openai.com/v1" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">LLM Sağlayıcısı (Provider)</label>
+            <select id="ai-provider" onchange="onAIProviderChange()" class="w-full px-3 py-2 rounded-lg border border-[#d8d3c8] bg-white font-mono text-xs">
+              <option value="gemini">Google Gemini API (AI Studio)</option>
+              <option value="vertex">Google Cloud Vertex AI (Bölge: global)</option>
+              <option value="openai">OpenAI Compatible (OpenAI / DeepSeek vb.)</option>
+              <option value="anthropic">Anthropic Claude API</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="groq">Groq Cloud API</option>
+              <option value="ollama">Ollama (Lokal / Host)</option>
+              <option value="custom">Özel OpenAI-Uyumlu Endpoint</option>
+            </select>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-semibold">Model Adı</label>
+              <span class="text-[10px] text-[#6f6a61] font-mono">Hızlı seç:</span>
+            </div>
+            <input type="text" id="ai-model" value="gemini-3.8-flash" placeholder="gemini-3.8-flash" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white">
+            <div class="flex flex-wrap gap-1 pt-1.5">
+              <button type="button" onclick="setModelPreset('gemini-3.8-flash')" class="kvkk-chip text-[10px] font-mono">gemini-3.8-flash</button>
+              <button type="button" onclick="setModelPreset('gemini-3.1-pro-preview')" class="kvkk-chip text-[10px] font-mono">gemini-3.1-pro</button>
+              <button type="button" onclick="setModelPreset('gpt-4o')" class="kvkk-chip text-[10px] font-mono">gpt-4o</button>
+              <button type="button" onclick="setModelPreset('claude-sonnet-4-5')" class="kvkk-chip text-[10px] font-mono">claude-sonnet-4-5</button>
+            </div>
+          </div>
+        </div>
+        <div id="ai-vertex-fields" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div id="ai-project-id-container">
+            <label class="block font-semibold mb-1">Project ID (Google Cloud)</label>
+            <input type="text" id="ai-project-id" placeholder="my-gcp-project-id" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white">
+          </div>
+          <div id="ai-region-container">
+            <label class="block font-semibold mb-1">Bölge (Region)</label>
+            <input type="text" id="ai-region" value="global" placeholder="global" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white">
+            <p class="text-[10px] text-emerald-600 font-semibold mt-0.5">Önerilen bölge: "global"</p>
+          </div>
+          <div id="ai-auth-type-container">
+            <label class="block font-semibold mb-1">Vertex Kimlik Doğrulama</label>
+            <select id="ai-auth-type" onchange="onAuthTypeChange()" class="w-full px-3 py-2 rounded-lg border border-[#d8d3c8] bg-white font-mono text-xs">
+              <option value="service_account">Service Account (JSON - Önerilen)</option>
+              <option value="api_key">Vertex API Key</option>
+            </select>
+          </div>
+        </div>
+        <div id="ai-base-url-container" class="hidden">
+          <label class="block font-semibold mb-1">Base URL (Endpoint)</label>
+          <input type="text" id="ai-base-url" placeholder="https://api.openai.com/v1" class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white">
+        </div>
+        <div id="ai-api-key-wrapper">
+          <label id="ai-auth-label" class="block font-semibold mb-1">Google Gemini API Anahtarı (AIza...)</label>
+          <input type="password" id="ai-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 font-mono rounded-lg border border-[#d8d3c8] bg-white">
+          <textarea id="ai-service-account-json" rows="4" placeholder='{"type": "service_account", "project_id": "...", "private_key": "-----BEGIN PRIVATE KEY-----...", "client_email": "..."}' class="hidden w-full px-3 py-2 font-mono text-[11px] rounded-lg border border-[#d8d3c8] bg-white"></textarea>
+        </div>
         <label class="flex items-center gap-2"><input type="checkbox" id="ai-redact-pii" checked><span>LLM'e göndermeden önce TCKN, IBAN, E-posta, Telefon ve Sırları maskele</span></label>
       </div>
-      <div class="flex items-center justify-between border-t border-[#e6e2d8] pt-3"><button type="button" onclick="clearAIConfig()" class="kvkk-btn kvkk-btn-ghost text-xs text-red-600">🗑️ Sıfırla</button><div class="flex gap-2"><button type="button" onclick="closeAIConfigModal()" class="kvkk-btn kvkk-btn-ghost text-xs">İptal</button><button type="button" onclick="saveAIConfig()" class="kvkk-btn kvkk-btn-primary text-xs">💾 Kaydet</button></div></div>
+      <div class="flex items-center justify-between border-t border-[#e6e2d8] pt-3"><button type="button" onclick="clearAIConfig()" class="kvkk-btn kvkk-btn-ghost text-xs text-red-600">🗑️ Ayarları Sıfırla</button><div class="flex gap-2"><button type="button" onclick="closeAIConfigModal()" class="kvkk-btn kvkk-btn-ghost text-xs">İptal</button><button type="button" onclick="saveAIConfig()" class="kvkk-btn kvkk-btn-primary text-xs">💾 Ayarları Kaydet</button></div></div>
     </div>
   </div>
   <script src="js/app.js"></script>
